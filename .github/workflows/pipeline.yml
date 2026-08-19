@@ -2,7 +2,7 @@ name: Collect NWS weather data and trigger Netlify
 
 on:
   schedule:
-    - cron: '15 */6 * * *'
+    - cron: '15 12 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
           NWS_USER_AGENT: ${{ secrets.NWS_USER_AGENT }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-          CACHE_TTL_SECONDS: '21600'
+          CACHE_TTL_SECONDS: '604800'
         run: node src/collect.js
       - name: Trigger Netlify production build
         if: ${{ secrets.NETLIFY_BUILD_HOOK_URL != '' }}

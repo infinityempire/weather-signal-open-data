@@ -6,7 +6,7 @@ Weather Signal is a source-linked comparison of forecast periods for six U.S. ci
 
 NWS says information provided by its API is open data, free to use for any purpose, subject to reasonable rate limits.[1] NWS also states that weather.gov information is public domain unless noted otherwise, but users must not imply NWS/NOAA endorsement or present modified content as official government material.[2]
 
-The collector makes sequential `points` and official forecast calls, caches snapshots for six hours, and sends an identifying `User-Agent`. The dashboard always links to weather.gov and each location’s source forecast.
+The collector makes sequential `points` and official forecast calls, caches snapshots for seven days, and sends an identifying `User-Agent`. The dashboard always links to weather.gov and each location’s source forecast.
 
 ## Deployment model
 
@@ -25,7 +25,7 @@ Create a GitHub repository from this directory and configure these repository se
 
 In Netlify, import `infinityempire/weather-signal-open-data` as a Git repository project. Netlify reads `netlify.toml` automatically. Add the following **Netlify environment variables** before the first production deploy: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and optionally `SITE_URL` if a custom domain is used. The build command is `npm ci && npm run build` and the publish directory is `public`.
 
-Create a Netlify deploy hook and save its URL as the `NETLIFY_BUILD_HOOK_URL` secret in GitHub. The scheduled GitHub workflow calls it only after a successful NWS collection. Netlify then rebuilds the dashboard from the latest Upstash snapshot.
+Create a Netlify deploy hook and save its URL as the `NETLIFY_BUILD_HOOK_URL` secret in GitHub. The scheduled GitHub workflow runs every Monday at 12:15 UTC and calls the hook only after a successful NWS collection. Netlify then rebuilds the dashboard from the latest Upstash snapshot.
 
 ## Monetization boundary
 
