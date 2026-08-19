@@ -1,0 +1,56 @@
+name: Collect NWS weather data and publish
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  collect-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Collect official NWS forecast periods
+        env:
+          NWS_USER_AGENT: ${{ secrets.NWS_USER_AGENT }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          CACHE_TTL_SECONDS: '21600'
+        run: node src/collect.js
+      - name: Build source-linked static dashboard
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          PAYPAL_ME_LINK: ${{ secrets.PAYPAL_ME_LINK }}
+          SPONSOR_URL: ${{ secrets.SPONSOR_URL }}
+          SPONSOR_LABEL: ${{ secrets.SPONSOR_LABEL }}
+        run: node src/build.js
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+  deploy:
+    needs: collect-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
