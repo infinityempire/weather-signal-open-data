@@ -8,6 +8,10 @@ NWS says information provided by its API is open data, free to use for any purpo
 
 The collector makes sequential `points` and official forecast calls, caches snapshots for six hours, and sends an identifying `User-Agent`. The dashboard always links to weather.gov and each location’s source forecast.
 
+## Deployment model
+
+GitHub Actions collects NWS data and writes a compact snapshot to Upstash. Netlify builds the static site from that cached snapshot and serves the public dashboard. This separation keeps data collection deterministic and avoids exposing the Upstash token in browser code.
+
 ## Setup
 
 Create a GitHub repository from this directory and configure these repository secrets:
@@ -17,15 +21,15 @@ Create a GitHub repository from this directory and configure these repository se
 | `UPSTASH_REDIS_REST_URL` | Yes | Upstash Redis REST endpoint. |
 | `UPSTASH_REDIS_REST_TOKEN` | Yes | Upstash Redis REST token with write access. |
 | `NWS_USER_AGENT` | Yes | Identify the app and a contact URL/email, per NWS guidance. |
-| `PAYPAL_ME_LINK` | No | An optional, clearly labeled voluntary support link. |
-| `SPONSOR_URL` | No | Optional sponsor URL, displayed with disclosure. |
-| `SPONSOR_LABEL` | No | Sponsor label; never an implied NWS endorsement. |
+| `NETLIFY_BUILD_HOOK_URL` | Yes for automatic refresh | A Netlify deploy-hook URL, stored only as a GitHub Actions secret. |
 
-In **Settings → Pages**, select **GitHub Actions**. The workflow runs every six hours and may be launched manually.
+In Netlify, import `infinityempire/weather-signal-open-data` as a Git repository project. Netlify reads `netlify.toml` automatically. Add the following **Netlify environment variables** before the first production deploy: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and optionally `SITE_URL` if a custom domain is used. The build command is `npm ci && npm run build` and the publish directory is `public`.
+
+Create a Netlify deploy hook and save its URL as the `NETLIFY_BUILD_HOOK_URL` secret in GitHub. The scheduled GitHub workflow calls it only after a successful NWS collection. Netlify then rebuilds the dashboard from the latest Upstash snapshot.
 
 ## Monetization boundary
 
-The product is usable without any monetization configuration. If the optional support or sponsor links are used, they remain visibly separated from the weather data. Do not present them as an NWS/NOAA endorsement, do not modify data and call it official, and do not use the dashboard for safety-critical decisions. The product includes no advertising script, click incentives, paywall, or revenue guarantee.
+The product is usable without monetization. If voluntary project support or sponsorship is later enabled in Netlify, it must remain visibly separated from forecast content, be labeled as optional support or sponsorship, and never imply NWS/NOAA endorsement. Do not modify data and call it official, do not use the dashboard for safety-critical decisions, and do not claim guaranteed income. The product includes no advertising script, click incentives, paywall, or revenue guarantee.
 
 ## Local run
 

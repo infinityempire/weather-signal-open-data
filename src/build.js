@@ -8,7 +8,7 @@ import { getWeatherSnapshot } from './store.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = path.resolve(__dirname, '..', 'public');
 const escapeHtml = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const siteUrl = () => (process.env.SITE_URL || 'http://localhost:8080').replace(/\/$/, '');
+const siteUrl = () => (process.env.SITE_URL || process.env.URL || 'http://localhost:8080').replace(/\/$/, '');
 const dateLabel = (value) => new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }) + ' UTC';
 const signalClass = (tone) => ({ storm: 'storm', rain: 'rain', wind: 'wind', heat: 'heat', cold: 'cold', calm: 'calm' }[tone] || 'calm');
 

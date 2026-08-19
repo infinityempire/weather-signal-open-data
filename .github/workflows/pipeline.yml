@@ -1,4 +1,4 @@
-name: Collect NWS weather data and publish
+name: Collect NWS weather data and trigger Netlify
 
 on:
   schedule:
@@ -7,11 +7,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: github-pages
+  group: weather-signal-collection
   cancel-in-progress: false
 
 jobs:
@@ -20,10 +18,9 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: npm
       - run: npm ci
       - name: Collect official NWS forecast periods
@@ -33,24 +30,9 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
           CACHE_TTL_SECONDS: '21600'
         run: node src/collect.js
-      - name: Build source-linked static dashboard
-        env:
-          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
-          PAYPAL_ME_LINK: ${{ secrets.PAYPAL_ME_LINK }}
-          SPONSOR_URL: ${{ secrets.SPONSOR_URL }}
-          SPONSOR_LABEL: ${{ secrets.SPONSOR_LABEL }}
-        run: node src/build.js
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./public
-  deploy:
-    needs: collect-build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Trigger Netlify production build
+        if: ${{ secrets.NETLIFY_BUILD_HOOK_URL != '' }}
+        run: curl --fail --silent --show-error -X POST "${{ secrets.NETLIFY_BUILD_HOOK_URL }}"
+      - name: Explain skipped Netlify deployment
+        if: ${{ secrets.NETLIFY_BUILD_HOOK_URL == '' }}
+        run: echo "NETLIFY_BUILD_HOOK_URL is not configured; collection completed but no Netlify rebuild was triggered."

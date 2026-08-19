@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "NWS open-data weather signal dashboard with Upstash caching and GitHub Pages publishing.",
+  "description": "NWS open-data weather signal dashboard with Upstash caching and Netlify static deployment.",
   "scripts": {
     "collect": "node src/collect.js",
     "build": "node src/build.js",
