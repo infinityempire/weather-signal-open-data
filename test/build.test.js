@@ -12,7 +12,7 @@ test('normalizes documented official status severities and derives a transparent
   assert.equal(classifyOfficialStatus('major_outage').weight, 55);
   const result = stabilityFor({ summary: { status: { indicator: 'minor', description: 'Minor System Outage' }, components: [{ name: 'API', status: 'degraded_performance' }] }, incidents: [{ name: 'Recent incident', status: 'resolved', impact: 'major', created_at: '2026-08-18T00:00:00.000Z', resolved_at: '2026-08-18T01:00:00.000Z' }], now: new Date('2026-08-19T00:00:00.000Z') });
   assert.equal(result.score, 75); assert.equal(result.deductions.current, 12); assert.equal(result.deductions.recentHistory, 13);
-  assert.equal(dependencyPosture([{ name: 'A', score: 100, current: { tone: 'steady' } }, { name: 'B', score: 80, current: { tone: 'watch' } }]).label, 'Single-provider watch');
+  assert.equal(dependencyPosture([{ name: 'A', score: 100, current: { tone: 'steady' } }, { name: 'B', score: 80, current: { tone: 'steady' } }]).label, 'Recent single-provider incident activity');
 });
 
 test('builds a source-linked dependency dashboard without default monetization', async () => {

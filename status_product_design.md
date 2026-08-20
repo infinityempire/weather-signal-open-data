@@ -29,9 +29,10 @@ The **Weekly Stability Score** starts at 100 and subtracts only documented, repr
 
 The product converts provider results into an explicit portfolio-level posture:
 
-* **Diversified posture** — no provider currently shows a non-operational official component or unresolved incident.
-* **Single-provider watch** — one provider has a current issue or a score below 88.
-* **Cross-provider exposure** — two or more providers have current issues or scores below 88.
+* **Diversified posture** — no provider currently shows a non-operational official component and no score is below 88.
+* **Recent incident activity** — no provider has a current official issue, but one or more scores reflect documented incident history in the preceding seven days.
+* **Single-provider live watch** — exactly one provider currently reports a non-operational official state.
+* **Cross-provider live exposure** — two or more providers currently report a non-operational official state.
 
 ## Initial providers and source boundaries
 

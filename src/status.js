@@ -85,9 +85,12 @@ export async function fetchProviderStatus(provider, { fetchImpl = fetch, now = n
 }
 
 export function dependencyPosture(providers) {
-  const watched = providers.filter((provider) => provider.score < 88 || provider.current.tone !== 'steady');
-  if (watched.length >= 2) return { label: 'Cross-provider exposure', tone: 'critical', rationale: `${watched.length} providers have a current issue or a stability score below 88.` };
-  if (watched.length === 1) return { label: 'Single-provider watch', tone: 'watch', rationale: `${watched[0].name} has a current issue or a stability score below 88.` };
+  const liveIssues = providers.filter((provider) => provider.current.tone !== 'steady');
+  const historyWatch = providers.filter((provider) => provider.score < 88);
+  if (liveIssues.length >= 2) return { label: 'Cross-provider live exposure', tone: 'critical', rationale: `${liveIssues.length} providers currently report a non-operational official state.` };
+  if (liveIssues.length === 1) return { label: 'Single-provider live watch', tone: 'watch', rationale: `${liveIssues[0].name} currently reports a non-operational official state.` };
+  if (historyWatch.length >= 2) return { label: 'Recent multi-provider incident activity', tone: 'watch', rationale: `No tracked provider currently reports a non-operational state, but ${historyWatch.length} scores reflect official incident activity in the prior seven days.` };
+  if (historyWatch.length === 1) return { label: 'Recent single-provider incident activity', tone: 'watch', rationale: `No tracked provider currently reports a non-operational state; ${historyWatch[0].name}'s score reflects official incident activity in the prior seven days.` };
   return { label: 'Diversified posture', tone: 'steady', rationale: 'No tracked provider currently has a non-operational official component or a score below 88.' };
 }
 
