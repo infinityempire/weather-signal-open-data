@@ -1,6 +1,7 @@
+// Product design: a neutral Upstash snapshot store for the Dependency Stability Lens, independent of any provider.
 import 'dotenv/config';
 
-const DEFAULT_KEY = 'weather-signal:latest';
+const DEFAULT_KEY = 'dependency-stability-lens:latest';
 
 function credentials() {
   const url = process.env.UPSTASH_REDIS_REST_URL?.replace(/\/$/, '');
@@ -17,6 +18,6 @@ async function execute(command, { fetchImpl = fetch } = {}) {
   return payload.result;
 }
 
-export function weatherCacheKey() { return process.env.UPSTASH_CACHE_KEY || DEFAULT_KEY; }
-export async function getWeatherSnapshot(options) { const value = await execute(['GET', weatherCacheKey()], options); return value ? JSON.parse(value) : null; }
-export async function setWeatherSnapshot(data, { ttlSeconds = Number.parseInt(process.env.CACHE_TTL_SECONDS ?? '21600', 10), ...options } = {}) { return execute(['SET', weatherCacheKey(), JSON.stringify(data), 'EX', ttlSeconds], options); }
+export function statusCacheKey() { return process.env.UPSTASH_CACHE_KEY || DEFAULT_KEY; }
+export async function getStatusSnapshot(options) { const value = await execute(['GET', statusCacheKey()], options); return value ? JSON.parse(value) : null; }
+export async function setStatusSnapshot(data, { ttlSeconds = Number.parseInt(process.env.CACHE_TTL_SECONDS ?? '604800', 10), ...options } = {}) { return execute(['SET', statusCacheKey(), JSON.stringify(data), 'EX', ttlSeconds], options); }

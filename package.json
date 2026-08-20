@@ -1,9 +1,9 @@
 {
-  "name": "weather-signal-open-data",
+  "name": "dependency-stability-lens",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "NWS open-data weather signal dashboard with Upstash caching and Netlify static deployment.",
+  "description": "Source-linked AI and cloud dependency stability tracker with Upstash caching and Netlify static deployment.",
   "scripts": {
     "collect": "node src/collect.js",
     "build": "node src/build.js",
